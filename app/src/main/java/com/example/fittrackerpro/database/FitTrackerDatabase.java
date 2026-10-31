@@ -1,7 +1,7 @@
 package com.example.fittrackerpro.database;
 
 import android.content.Context;
-
+import com.example.fittrackerpro.database.dao.WorkoutPlanDao;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -18,7 +18,7 @@ import com.example.fittrackerpro.database.entity.WaterLog;
 import com.example.fittrackerpro.database.entity.WeightHistory;
 import com.example.fittrackerpro.database.entity.WorkoutPlan;
 import com.example.fittrackerpro.database.entity.WorkoutSession;
-
+import com.example.fittrackerpro.database.dao.WorkoutSessionDao;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -28,10 +28,10 @@ import java.util.concurrent.Executors;
         ActivityLog.class, WeightHistory.class, WaterLog.class},
         version = 1, exportSchema = false)
 public abstract class FitTrackerDatabase extends RoomDatabase {
-
+    public abstract WorkoutSessionDao workoutSessionDao();
     public abstract UserProfileDao userProfileDao();
     public abstract ExerciseDao exerciseDao();
-
+    public abstract WorkoutPlanDao workoutPlanDao();
     private static volatile FitTrackerDatabase INSTANCE;
 
     // All writes run here, never on the main thread

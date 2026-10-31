@@ -47,4 +47,7 @@ public interface ExerciseDao {
 
     @Query("DELETE FROM favorite_exercises WHERE userId = :userId AND exerciseId = :exerciseId")
     void removeFavorite(String userId, String exerciseId);
+
+    @Query("SELECT * FROM exercises ORDER BY name")
+    List<Exercise> getAllOnce();
 }

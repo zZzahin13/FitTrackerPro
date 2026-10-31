@@ -15,6 +15,12 @@
         android:theme="@style/Theme.FitTrackerPro"
         tools:targetApi="31">
         <activity
+            android:name=".WorkoutHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".WorkoutDayActivity"
+            android:exported="false" />
+        <activity
             android:name=".ExerciseDetailActivity"
             android:exported="false" />
         <activity

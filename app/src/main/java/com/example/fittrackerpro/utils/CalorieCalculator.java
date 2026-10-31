@@ -3,6 +3,11 @@ package com.example.fittrackerpro.utils;
 import com.example.fittrackerpro.database.entity.UserProfile;
 
 public class CalorieCalculator {
+    // ESTIMATE: general strength training is about 5 METs.
+// calories = MET x body weight (kg) x hours
+    public static double workoutCalories(double weightKg, int minutes) {
+        return 5.0 * weightKg * (minutes / 60.0);
+    }
 
     public static class Targets {
         public double bmr;
