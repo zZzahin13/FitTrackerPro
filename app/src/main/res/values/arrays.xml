@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="muscle_groups">
+        <item>All</item>
+        <item>Chest</item>
+        <item>Back</item>
+        <item>Legs</item>
+        <item>Shoulders</item>
+        <item>Arms</item>
+        <item>Core</item>
+        <item>Full Body</item>
+        <item>Cardio</item>
+    </string-array>
     <string-array name="workout_types">
         <item>Running</item>
         <item>Walking</item>

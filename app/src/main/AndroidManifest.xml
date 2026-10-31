@@ -14,9 +14,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FitTrackerPro"
         tools:targetApi="31">
-        <activity android:name=".activities.AssessmentActivity" android:exported="false" />
-        <activity android:name=".activities.AssessmentResultActivity" android:exported="false" />
-        <activity android:name=".activities.ForgotPasswordActivity" android:exported="false" />
+        <activity
+            android:name=".ExerciseDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ExerciseLibraryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.AssessmentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.AssessmentResultActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.ForgotPasswordActivity"
+            android:exported="false" />
         <activity
             android:name=".activities.SplashActivity"
             android:exported="true">

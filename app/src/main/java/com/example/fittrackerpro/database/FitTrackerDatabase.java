@@ -5,7 +5,7 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-
+import com.example.fittrackerpro.database.dao.ExerciseDao;
 import com.example.fittrackerpro.database.dao.UserProfileDao;
 import com.example.fittrackerpro.database.entity.ActivityLog;
 import com.example.fittrackerpro.database.entity.Exercise;
@@ -30,6 +30,7 @@ import java.util.concurrent.Executors;
 public abstract class FitTrackerDatabase extends RoomDatabase {
 
     public abstract UserProfileDao userProfileDao();
+    public abstract ExerciseDao exerciseDao();
 
     private static volatile FitTrackerDatabase INSTANCE;
 

@@ -2,7 +2,7 @@ package com.example.fittrackerpro.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-
+import com.example.fittrackerpro.fragments.WorkoutFragment;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.nav_home) {
             return PlaceholderFragment.newInstance("Home", "Dashboard arrives on Day 7");
         } else if (id == R.id.nav_workout) {
-            return PlaceholderFragment.newInstance("Workout", "Plans and exercises arrive on Days 3 and 4");
+            return new WorkoutFragment();
         } else if (id == R.id.nav_nutrition) {
             return PlaceholderFragment.newInstance("Nutrition", "Food logging arrives on Day 5");
         } else if (id == R.id.nav_activity) {
