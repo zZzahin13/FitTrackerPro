@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">FitTrackerPro</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_workout">Workout</string>
+    <string name="nav_nutrition">Nutrition</string>
+    <string name="nav_activity">Activity</string>
+    <string name="nav_profile">Profile</string>
+    <string name="formula_note">How these are calculated: BMI = weight (kg) / height (m) squared. BMR uses the Mifflin-St Jeor equation, which estimates the calories your body burns at rest. TDEE = BMR multiplied by your daily activity level (1.2 to 1.725). Your calorie target adjusts TDEE for your goal (for example, 20% lower for weight loss, never below 1200 kcal or your BMR). Protein, carbs and fat are set as a share of that target (4, 4 and 9 kcal per gram).</string>
+    <string name="disclaimer">These numbers are estimates from general formulas, not medical advice. BMI cannot tell muscle from fat. If you are under 18, pregnant, injured, have a medical condition, or have a history of disordered eating, talk to a doctor or registered dietitian before changing your diet or training.</string>
 </resources>

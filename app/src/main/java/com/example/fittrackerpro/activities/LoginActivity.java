@@ -1,16 +1,17 @@
-package com.example.fittrackerpro;
+package com.example.fittrackerpro.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
+import com.example.fittrackerpro.utils.AuthMessages;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.fittrackerpro.databinding.ActivityLoginBinding;
 import com.google.firebase.auth.FirebaseAuth;
-
+import com.example.fittrackerpro.utils.StartupRouter;
 public class LoginActivity extends AppCompatActivity {
 
     private ActivityLoginBinding binding;
@@ -25,7 +26,11 @@ public class LoginActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         binding.btnLogin.setOnClickListener(v -> attemptLogin());
-        binding.tvForgot.setOnClickListener(v -> sendReset());
+        binding.tvForgot.setOnClickListener(v -> {
+            Intent i = new Intent(this, ForgotPasswordActivity.class);
+            i.putExtra("email", binding.etEmail.getText().toString().trim());
+            startActivity(i);
+        });
         binding.tvGoRegister.setOnClickListener(v ->
                 startActivity(new Intent(this, RegisterActivity.class)));
     }
@@ -51,16 +56,16 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     setLoading(false);
                     if (task.isSuccessful()) {
-                        goToDashboard();
+                        StartupRouter.route(this);
                     } else {
                         Toast.makeText(this,
-                                "Login failed: " + task.getException().getMessage(),
+                                AuthMessages.from(task.getException()),
                                 Toast.LENGTH_LONG).show();
                     }
                 });
     }
 
-    private void sendReset() {
+    /*private void sendReset() {
         String email = binding.etEmail.getText().toString().trim();
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             binding.tilEmail.setError("Type your email first");
@@ -70,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(this,
                         task.isSuccessful() ? "Reset email sent" : "Could not send email",
                         Toast.LENGTH_LONG).show());
-    }
+    }*/
 
     private void setLoading(boolean loading) {
         binding.progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
