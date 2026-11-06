@@ -11,7 +11,7 @@ import com.example.fittrackerpro.databinding.ActivityMainBinding;
 import com.example.fittrackerpro.fragments.PlaceholderFragment;
 import com.example.fittrackerpro.fragments.ProfileFragment;
 import com.google.firebase.auth.FirebaseAuth;
-
+import com.example.fittrackerpro.fragments.ActivityFragment;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.nav_nutrition) {
             return new NutritionFragment();
         } else if (id == R.id.nav_activity) {
-            return PlaceholderFragment.newInstance("Activity", "Tracking arrives on Day 6");
+            return new ActivityFragment();
         } else if (id == R.id.nav_profile) {
             return new ProfileFragment();
         }

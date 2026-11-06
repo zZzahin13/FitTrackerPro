@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="activity_types">
+        <item>Walking</item>
+        <item>Running</item>
+        <item>Cycling</item>
+        <item>Swimming</item>
+        <item>General workout</item>
+    </string-array>
+
+    <string-array name="when_options">
+        <item>Today</item>
+        <item>Yesterday</item>
+        <item>2 days ago</item>
+    </string-array>
     <string-array name="muscle_groups">
         <item>All</item>
         <item>Chest</item>

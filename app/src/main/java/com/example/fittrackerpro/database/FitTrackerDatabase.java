@@ -1,7 +1,7 @@
 package com.example.fittrackerpro.database;
 
 import android.content.Context;
-
+import com.example.fittrackerpro.database.dao.ActivityLogDao;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -34,7 +34,7 @@ import java.util.concurrent.Executors;
         ActivityLog.class, WeightHistory.class, WaterLog.class},
         version = 1, exportSchema = false)
 public abstract class FitTrackerDatabase extends RoomDatabase {
-
+    public abstract ActivityLogDao activityLogDao();
     public abstract UserProfileDao userProfileDao();
     public abstract ExerciseDao exerciseDao();
     public abstract WorkoutPlanDao workoutPlanDao();

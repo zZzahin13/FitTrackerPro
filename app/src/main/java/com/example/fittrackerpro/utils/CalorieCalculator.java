@@ -3,6 +3,47 @@ package com.example.fittrackerpro.utils;
 import com.example.fittrackerpro.database.entity.UserProfile;
 
 public class CalorieCalculator {
+    // ESTIMATE: typical MET values for ordinary effort. Real burn varies with intensity and person.
+    public static double activityMet(String type) {
+        if (type == null) return 5.0;
+        switch (type) {
+            case "Walking": return 3.5;
+            case "Running": return 8.0;
+            case "Cycling": return 7.0;
+            case "Swimming": return 6.0;
+            default: return 5.0;   // General workout
+        }
+    }
+
+    public static double activityCalories(String type, double weightKg, int minutes) {
+        return activityMet(type) * weightKg * (minutes / 60.0);
+    }
+
+    // ROUGH ESTIMATE: step length is about 41.5% of height when walking, about 65% when running
+    public static int estimateSteps(String type, double distanceKm, double heightCm) {
+        double factor;
+        if ("Walking".equals(type)) {
+            factor = 0.415;
+        } else if ("Running".equals(type)) {
+            factor = 0.65;
+        } else {
+            return 0;   // cycling and swimming have no steps
+        }
+        double stepMeters = (heightCm / 100.0) * factor;
+        return (int) Math.round(distanceKm * 1000 / stepMeters);
+    }
+
+    // Used to reject impossible entries (km per hour)
+    public static double maxSpeedKmh(String type) {
+        if (type == null) return 60;
+        switch (type) {
+            case "Walking": return 9;
+            case "Running": return 25;
+            case "Cycling": return 60;
+            case "Swimming": return 6;
+            default: return 60;
+        }
+    }
     // ESTIMATE: general strength training is about 5 METs.
 // calories = MET x body weight (kg) x hours
     public static double workoutCalories(double weightKg, int minutes) {
