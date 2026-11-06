@@ -17,22 +17,25 @@ import com.example.fittrackerpro.database.entity.UserProfile;
 import com.example.fittrackerpro.database.entity.WeightHistory;
 import com.example.fittrackerpro.database.entity.WorkoutSession;
 import com.example.fittrackerpro.utils.SyncManager;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Day 8B: WorkManager background worker that uploads unsynced Room entities
  * (UserProfile, ActivityLog, WorkoutSession, WeightHistory) to Firebase Firestore
- * under users/{userId}/... and marks them isSynced = true in Room.
+ * in a single atomic WriteBatch under users/{userId}/... and marks them isSynced = true in Room.
  */
 public class SyncWorker extends Worker {
 
@@ -62,13 +65,15 @@ public class SyncWorker extends Worker {
 
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         DocumentReference userDoc = firestore.collection("users").document(uid);
+        WriteBatch batch = firestore.batch();
 
         int syncedItems = 0;
 
         try {
-            // 1. Sync UserProfile if modified (isSynced == false)
+            // 1. Stage UserProfile if modified (isSynced == false)
             UserProfile profile = profileDao.getProfileOnce(uid);
-            if (profile != null && !profile.isSynced) {
+            boolean hasProfileToSync = (profile != null && !profile.isSynced);
+            if (hasProfileToSync) {
                 Map<String, Object> profileMap = new HashMap<>();
                 profileMap.put("userId", profile.userId);
                 profileMap.put("name", profile.name);
@@ -88,12 +93,11 @@ public class SyncWorker extends Worker {
                 profileMap.put("profileCompleted", profile.profileCompleted);
                 profileMap.put("updatedAt", profile.updatedAt);
 
-                Tasks.await(userDoc.set(profileMap, SetOptions.merge()), 15, TimeUnit.SECONDS);
-                profileDao.markSynced(uid);
+                batch.set(userDoc, profileMap, SetOptions.merge());
                 syncedItems++;
             }
 
-            // 2. Sync unsynced ActivityLog rows
+            // 2. Stage unsynced ActivityLog rows
             List<ActivityLog> unsyncedActivities = activityDao.getUnsynced(uid);
             for (ActivityLog log : unsyncedActivities) {
                 Map<String, Object> map = new HashMap<>();
@@ -107,14 +111,11 @@ public class SyncWorker extends Worker {
                 map.put("date", log.date);
                 map.put("updatedAt", log.updatedAt);
 
-                Tasks.await(
-                        userDoc.collection("activity_logs").document(log.activityId).set(map),
-                        15, TimeUnit.SECONDS);
-                activityDao.markSynced(log.activityId);
+                batch.set(userDoc.collection("activity_logs").document(log.activityId), map);
                 syncedItems++;
             }
 
-            // 3. Sync unsynced WorkoutSession rows
+            // 3. Stage unsynced WorkoutSession rows
             List<WorkoutSession> unsyncedSessions = sessionDao.getUnsynced(uid);
             for (WorkoutSession s : unsyncedSessions) {
                 Map<String, Object> map = new HashMap<>();
@@ -127,14 +128,11 @@ public class SyncWorker extends Worker {
                 map.put("completed", s.completed);
                 map.put("updatedAt", s.updatedAt);
 
-                Tasks.await(
-                        userDoc.collection("workout_sessions").document(s.sessionId).set(map),
-                        15, TimeUnit.SECONDS);
-                sessionDao.markSynced(s.sessionId);
+                batch.set(userDoc.collection("workout_sessions").document(s.sessionId), map);
                 syncedItems++;
             }
 
-            // 4. Sync unsynced WeightHistory rows
+            // 4. Stage unsynced WeightHistory rows
             List<WeightHistory> unsyncedWeights = weightDao.getUnsynced(uid);
             for (WeightHistory w : unsyncedWeights) {
                 Map<String, Object> map = new HashMap<>();
@@ -144,11 +142,33 @@ public class SyncWorker extends Worker {
                 map.put("date", w.date);
                 map.put("updatedAt", w.updatedAt);
 
-                Tasks.await(
-                        userDoc.collection("weight_history").document(w.recordId).set(map),
-                        15, TimeUnit.SECONDS);
-                weightDao.markSynced(w.recordId);
+                batch.set(userDoc.collection("weight_history").document(w.recordId), map);
                 syncedItems++;
+            }
+
+            if (syncedItems > 0) {
+                Task<Void> commitTask = batch.commit();
+                try {
+                    // Wait up to 6 seconds for live server acknowledgement; if offline or Firestore
+                    // is still syncing in the background, Firestore's offline cache retains the write
+                    // and delivers it automatically when connected.
+                    Tasks.await(commitTask, 6, TimeUnit.SECONDS);
+                } catch (TimeoutException ignored) {
+                    // Firestore has queued the batch locally in its offline persistence cache
+                }
+
+                if (hasProfileToSync) {
+                    profileDao.markSynced(uid);
+                }
+                for (ActivityLog log : unsyncedActivities) {
+                    activityDao.markSynced(log.activityId);
+                }
+                for (WorkoutSession s : unsyncedSessions) {
+                    sessionDao.markSynced(s.sessionId);
+                }
+                for (WeightHistory w : unsyncedWeights) {
+                    weightDao.markSynced(w.recordId);
+                }
             }
 
             SyncManager.recordSyncSuccess(getApplicationContext(), syncedItems);
