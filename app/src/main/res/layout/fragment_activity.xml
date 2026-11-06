@@ -3,47 +3,60 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="18dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Activity"
-        android:textSize="28sp"
+        android:text="Activity Tracker"
+        android:textColor="@color/text_primary"
+        android:textSize="26sp"
         android:textStyle="bold" />
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:cardCornerRadius="12dp">
+        android:layout_marginTop="12dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="18dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TODAY'S ACTIVE TIME"
+                android:textColor="@color/accent_cyan"
+                android:textSize="11sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvActiveMinutes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/accent"
-                android:textSize="32sp"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/accent_emerald"
+                android:textSize="34sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvGoal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/text_secondary" />
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
 
             <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:id="@+id/progressActive"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
+                app:indicatorColor="@color/accent_emerald"
+                app:trackColor="@color/track_dark"
                 app:trackCornerRadius="4dp"
                 app:trackThickness="8dp" />
 
@@ -51,32 +64,46 @@
                 android:id="@+id/tvTotals"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="10dp"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Steps and distance are not measured automatically in this version. Enter them yourself, or leave steps empty to get an estimate from distance. All figures are estimates."
-        android:textColor="@color/warning"
-        android:textSize="12sp" />
+        android:layout_marginTop="14dp"
+        android:orientation="horizontal">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnLogManual"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="12dp"
-        android:text="Log an activity" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnStartSession"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            android:text="Start Timed Session" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogManual"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:text="Log Manually"
+            android:textColor="@color/accent_cyan"
+            app:strokeColor="@color/accent_cyan" />
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Last 14 days"
-        android:textColor="@color/accent"
-        android:textSize="18sp"
+        android:layout_marginTop="18dp"
+        android:layout_marginBottom="4dp"
+        android:text="Recent Activity (Last 14 Days)"
+        android:textColor="@color/text_primary"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <FrameLayout
@@ -95,7 +122,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="No activity yet.\nTap Log an activity to add one."
+            android:text="No activity logged yet.\nTap Start Timed Session or Log Manually above."
             android:textColor="@color/text_secondary"
             android:visibility="gone" />
     </FrameLayout>

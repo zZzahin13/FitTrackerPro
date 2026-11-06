@@ -2,16 +2,19 @@ package com.example.fittrackerpro.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import com.example.fittrackerpro.fragments.WorkoutFragment;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import com.example.fittrackerpro.fragments.NutritionFragment;
+
 import com.example.fittrackerpro.R;
 import com.example.fittrackerpro.databinding.ActivityMainBinding;
-import com.example.fittrackerpro.fragments.PlaceholderFragment;
-import com.example.fittrackerpro.fragments.ProfileFragment;
-import com.google.firebase.auth.FirebaseAuth;
 import com.example.fittrackerpro.fragments.ActivityFragment;
+import com.example.fittrackerpro.fragments.HomeFragment;
+import com.example.fittrackerpro.fragments.NutritionFragment;
+import com.example.fittrackerpro.fragments.ProfileFragment;
+import com.example.fittrackerpro.fragments.WorkoutFragment;
+import com.google.firebase.auth.FirebaseAuth;
+
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
@@ -53,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     // if/else instead of switch: resource IDs are not compile-time constants in newer Gradle plugins
     private Fragment fragmentFor(int id) {
         if (id == R.id.nav_home) {
-            return PlaceholderFragment.newInstance("Home", "Dashboard arrives on Day 7");
+            return new HomeFragment();
         } else if (id == R.id.nav_workout) {
             return new WorkoutFragment();
         } else if (id == R.id.nav_nutrition) {

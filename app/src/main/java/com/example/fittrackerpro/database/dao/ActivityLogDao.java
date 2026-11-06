@@ -24,4 +24,13 @@ public interface ActivityLogDao {
     @Query("SELECT * FROM activity_logs WHERE userId = :userId "
             + "AND date >= :rangeStart AND date < :rangeEnd ORDER BY date DESC")
     LiveData<List<ActivityLog>> observeRange(String userId, long rangeStart, long rangeEnd);
+
+    @Query("SELECT * FROM activity_logs WHERE userId = :userId AND isSynced = 0")
+    List<ActivityLog> getUnsynced(String userId);
+
+    @Query("UPDATE activity_logs SET isSynced = 1 WHERE activityId = :activityId")
+    void markSynced(String activityId);
+
+    @Query("SELECT COUNT(*) FROM activity_logs WHERE userId = :userId AND isSynced = 0")
+    LiveData<Integer> observeUnsyncedCount(String userId);
 }

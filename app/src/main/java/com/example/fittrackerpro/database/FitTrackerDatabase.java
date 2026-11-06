@@ -1,16 +1,18 @@
 package com.example.fittrackerpro.database;
 
 import android.content.Context;
-import com.example.fittrackerpro.database.dao.ActivityLogDao;
+
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
+import com.example.fittrackerpro.database.dao.ActivityLogDao;
 import com.example.fittrackerpro.database.dao.ExerciseDao;
 import com.example.fittrackerpro.database.dao.FoodLogDao;
 import com.example.fittrackerpro.database.dao.MealDao;
 import com.example.fittrackerpro.database.dao.UserProfileDao;
 import com.example.fittrackerpro.database.dao.WaterDao;
+import com.example.fittrackerpro.database.dao.WeightHistoryDao;
 import com.example.fittrackerpro.database.dao.WorkoutPlanDao;
 import com.example.fittrackerpro.database.dao.WorkoutSessionDao;
 import com.example.fittrackerpro.database.entity.ActivityLog;
@@ -42,6 +44,7 @@ public abstract class FitTrackerDatabase extends RoomDatabase {
     public abstract MealDao mealDao();
     public abstract FoodLogDao foodLogDao();
     public abstract WaterDao waterDao();
+    public abstract WeightHistoryDao weightHistoryDao();
 
     private static volatile FitTrackerDatabase INSTANCE;
 

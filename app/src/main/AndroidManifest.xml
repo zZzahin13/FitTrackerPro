@@ -4,6 +4,14 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Day 6, Part 2: Foreground service & Android 13+ notification permissions -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Day 8A: Re-schedule WorkManager reminders on device reboot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -35,6 +43,32 @@
         <activity android:name=".activities.WorkoutDayActivity" android:exported="false" />
         <activity android:name=".activities.WorkoutHistoryActivity" android:exported="false" />
         <activity android:name=".activities.AddFoodActivity" android:exported="false" />
+        <activity
+            android:name=".activities.TrackingActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity android:name=".activities.ProgressActivity" android:exported="false" />
+        <activity android:name=".activities.SettingsActivity" android:exported="false" />
+
+        <service
+            android:name=".services.ActivityTrackingService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-initiated fitness activity timer session with ongoing notification controls" />
+        </service>
+
+        <!-- Day 8A: Static BroadcastReceiver that restores WorkManager reminders after reboot -->
+        <receiver
+            android:name=".receivers.BootReminderReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

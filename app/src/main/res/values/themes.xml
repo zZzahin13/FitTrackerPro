@@ -3,7 +3,7 @@
         <item name="colorPrimary">@color/accent</item>
         <item name="colorPrimaryVariant">@color/accent_dark</item>
         <item name="colorOnPrimary">@color/background</item>
-        <item name="colorSecondary">@color/accent</item>
+        <item name="colorSecondary">@color/accent_cyan</item>
         <item name="colorOnSecondary">@color/background</item>
         <item name="colorSurface">@color/card</item>
         <item name="colorOnSurface">@color/text_primary</item>
@@ -14,6 +14,26 @@
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
         <item name="android:statusBarColor">@color/background</item>
-        <item name="android:navigationBarColor">@color/background</item>
+        <item name="android:navigationBarColor">@color/card</item>
+
+        <!-- Global sleek pill buttons & rounded bordered cards -->
+        <item name="materialButtonStyle">@style/Widget.FitTrackerPro.Button</item>
+        <item name="materialCardViewStyle">@style/Widget.FitTrackerPro.CardView</item>
+    </style>
+
+    <style name="Widget.FitTrackerPro.Button" parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">24dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:textStyle">bold</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="Widget.FitTrackerPro.CardView" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/card</item>
+        <item name="cardCornerRadius">18dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/card_stroke</item>
+        <item name="strokeWidth">1dp</item>
     </style>
 </resources>

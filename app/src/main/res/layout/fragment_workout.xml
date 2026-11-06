@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="18dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Workout"
-        android:textSize="28sp"
+        android:text="Workout Plan"
+        android:textColor="@color/text_primary"
+        android:textSize="26sp"
         android:textStyle="bold" />
 
     <!-- Shown when there is no plan yet -->
@@ -22,18 +25,42 @@
         android:orientation="vertical"
         android:visibility="gone">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="You do not have a workout plan yet."
-            android:textColor="@color/text_secondary" />
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCreatePlan"
-            android:layout_width="wrap_content"
-            android:layout_height="56dp"
-            android:layout_marginTop="16dp"
-            android:text="Create my plan" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="28dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No Active Training Schedule"
+                    android:textColor="@color/text_primary"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:text="Generate a personalized 7-day workout split tailored to your fitness level and equipment."
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCreatePlan"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="18dp"
+                    android:text="Generate My Plan" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 
     <!-- Shown when a plan exists -->
@@ -45,28 +72,42 @@
         android:orientation="vertical"
         android:visibility="gone">
 
-        <TextView
-            android:id="@+id/tvPlanName"
-            android:layout_width="wrap_content"
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="@color/accent"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="10dp">
 
-        <TextView
-            android:id="@+id/tvPlanDates"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/text_secondary" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <TextView
+                    android:id="@+id/tvPlanName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/accent_emerald"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvPlanDates"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@string/plan_note"
-            android:textColor="@color/warning"
-            android:textSize="12sp" />
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvDays"
@@ -79,43 +120,49 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLibrary"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="56dp"
+            android:layout_height="48dp"
             android:layout_marginEnd="4dp"
             android:layout_weight="1"
             android:insetLeft="0dp"
             android:insetRight="0dp"
             android:padding="0dp"
-            android:text="Library" />
+            android:text="Library"
+            android:textColor="@color/accent_cyan"
+            app:strokeColor="@color/accent_cyan" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnHistory"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="4dp"
             android:layout_weight="1"
             android:insetLeft="0dp"
             android:insetRight="0dp"
             android:padding="0dp"
-            android:text="History" />
+            android:text="History"
+            android:textColor="@color/accent_emerald"
+            app:strokeColor="@color/accent_emerald" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNewPlan"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="56dp"
+            android:layout_height="48dp"
             android:layout_marginStart="4dp"
             android:layout_weight="1"
             android:insetLeft="0dp"
             android:insetRight="0dp"
             android:padding="0dp"
-            android:text="New plan" />
+            android:text="New Plan"
+            android:textColor="@color/text_primary"
+            app:strokeColor="@color/card_stroke" />
     </LinearLayout>
 </LinearLayout>

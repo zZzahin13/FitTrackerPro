@@ -20,4 +20,7 @@ public interface UserProfileDao {
 
     @Query("SELECT * FROM user_profile WHERE userId = :userId")
     UserProfile getProfileOnce(String userId);
+
+    @Query("UPDATE user_profile SET isSynced = 1 WHERE userId = :userId")
+    void markSynced(String userId);
 }

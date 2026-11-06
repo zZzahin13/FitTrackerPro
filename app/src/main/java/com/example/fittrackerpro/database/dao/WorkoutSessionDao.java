@@ -23,4 +23,13 @@ public interface WorkoutSessionDao {
 
     @Query("SELECT * FROM workout_sessions WHERE userId = :userId ORDER BY date DESC")
     LiveData<List<WorkoutSession>> observeAll(String userId);
+
+    @Query("SELECT * FROM workout_sessions WHERE userId = :userId AND isSynced = 0")
+    List<WorkoutSession> getUnsynced(String userId);
+
+    @Query("UPDATE workout_sessions SET isSynced = 1 WHERE sessionId = :sessionId")
+    void markSynced(String sessionId);
+
+    @Query("SELECT COUNT(*) FROM workout_sessions WHERE userId = :userId AND isSynced = 0")
+    LiveData<Integer> observeUnsyncedCount(String userId);
 }

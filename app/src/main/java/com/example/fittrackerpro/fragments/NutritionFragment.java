@@ -83,6 +83,7 @@ public class NutritionFragment extends Fragment implements MealLogAdapter.Listen
         viewModel.getWaterTotal().observe(getViewLifecycleOwner(), total -> {
             waterTotal = total != null ? total : 0;
             renderWater();
+            render();
         });
 
         viewModel.getWeekLogs().observe(getViewLifecycleOwner(), logs -> {
@@ -121,13 +122,13 @@ public class NutritionFragment extends Fragment implements MealLogAdapter.Listen
     private void renderWater() {
         if (binding == null) return;
         binding.tvWater.setText(waterTotal + " ml");
-        binding.tvWaterGoal.setText("of " + waterGoal + " ml suggested goal (estimate)");
+        binding.tvWaterGoal.setText("Goal: " + waterGoal + " ml daily hydration");
         binding.progressWater.setMax(Math.max(waterGoal, 1));
         binding.progressWater.setProgressCompat(Math.min(waterTotal, waterGoal), true);
         binding.btnWaterUndo.setEnabled(waterTotal > 0);
     }
 
-    // Recalculates the day's totals and rebuilds the four meal sections
+    // Recalculates the day's totals, dual concentric ring, and macro bars
     private void render() {
         if (binding == null) return;
 
@@ -139,33 +140,71 @@ public class NutritionFragment extends Fragment implements MealLogAdapter.Listen
             fat += l.fatPerServing * l.log.quantity;
         }
 
-        binding.tvConsumed.setText(String.valueOf(Math.round(kcal)));
+        binding.tvConsumed.setText(Math.round(kcal) + " kcal eaten");
+        float hydrationRatio = waterGoal > 0 ? Math.min(1f, (float) waterTotal / waterGoal) : 0f;
+        binding.ringNutritionCalories.setDualRing(true, hydrationRatio);
 
         if (targets != null) {
             int target = (int) Math.round(targets.targetCalories);
             long remaining = target - Math.round(kcal);
 
-            binding.tvTarget.setText("of " + target + " kcal daily target");
+            binding.tvTarget.setText("• Goal " + target + " kcal");
             if (remaining >= 0) {
                 binding.tvRemaining.setText(remaining + " kcal remaining");
                 binding.tvRemaining.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary));
+                binding.ringNutritionCalories.setProgress(
+                        (float) kcal,
+                        target,
+                        String.format(Locale.getDefault(), "%,d", remaining),
+                        "kcal remaining");
             } else {
                 binding.tvRemaining.setText(-remaining + " kcal over target");
                 binding.tvRemaining.setTextColor(ContextCompat.getColor(requireContext(), R.color.warning));
+                binding.ringNutritionCalories.setProgress(
+                        (float) kcal,
+                        target,
+                        String.format(Locale.getDefault(), "+%,d", -remaining),
+                        "kcal over target");
             }
             binding.progressCalories.setMax(Math.max(target, 1));
             binding.progressCalories.setProgressCompat((int) Math.min(Math.round(kcal), target), true);
 
-            binding.tvProtein.setText("Protein\n" + Math.round(protein) + " / " + Math.round(targets.proteinG) + " g");
-            binding.tvCarbs.setText("Carbs\n" + Math.round(carbs) + " / " + Math.round(targets.carbsG) + " g");
-            binding.tvFat.setText("Fat\n" + Math.round(fat) + " / " + Math.round(targets.fatG) + " g");
+            int pTarget = Math.max(1, (int) Math.round(targets.proteinG));
+            int cTarget = Math.max(1, (int) Math.round(targets.carbsG));
+            int fTarget = Math.max(1, (int) Math.round(targets.fatG));
+
+            binding.tvProtein.setText(Math.round(protein) + " / " + pTarget + " g");
+            binding.tvCarbs.setText(Math.round(carbs) + " / " + cTarget + " g");
+            binding.tvFat.setText(Math.round(fat) + " / " + fTarget + " g");
+
+            binding.progressProtein.setMax(pTarget);
+            binding.progressProtein.setProgressCompat((int) Math.min(Math.round(protein), pTarget), true);
+
+            binding.progressCarbs.setMax(cTarget);
+            binding.progressCarbs.setProgressCompat((int) Math.min(Math.round(carbs), cTarget), true);
+
+            binding.progressFat.setMax(fTarget);
+            binding.progressFat.setProgressCompat((int) Math.min(Math.round(fat), fTarget), true);
         } else {
-            binding.tvTarget.setText("Finish your assessment to see a daily target");
+            binding.tvTarget.setText("• Complete assessment for target");
             binding.tvRemaining.setText("");
+            binding.ringNutritionCalories.setProgress(
+                    (float) kcal,
+                    2000f,
+                    String.format(Locale.getDefault(), "%,d", Math.round(kcal)),
+                    "kcal eaten");
             binding.progressCalories.setProgressCompat(0, false);
-            binding.tvProtein.setText("Protein\n" + Math.round(protein) + " g");
-            binding.tvCarbs.setText("Carbs\n" + Math.round(carbs) + " g");
-            binding.tvFat.setText("Fat\n" + Math.round(fat) + " g");
+
+            binding.tvProtein.setText(Math.round(protein) + " g");
+            binding.tvCarbs.setText(Math.round(carbs) + " g");
+            binding.tvFat.setText(Math.round(fat) + " g");
+
+            binding.progressProtein.setMax(150);
+            binding.progressProtein.setProgressCompat((int) Math.min(Math.round(protein), 150), true);
+            binding.progressCarbs.setMax(250);
+            binding.progressCarbs.setProgressCompat((int) Math.min(Math.round(carbs), 250), true);
+            binding.progressFat.setMax(70);
+            binding.progressFat.setProgressCompat((int) Math.min(Math.round(fat), 70), true);
         }
 
         // One header per meal, followed by that meal's food lines
@@ -196,7 +235,6 @@ public class NutritionFragment extends Fragment implements MealLogAdapter.Listen
         double protein = 0, carbs = 0, fat = 0;
 
         for (FoodLogItem l : weekLogs) {
-            // Which of the 7 days does this log belong to? (rounding avoids daylight-saving drift)
             int index = (int) Math.round(
                     (DateUtil.dayStartOf(l.log.date) - weekStart) / 86400000.0);
             if (index < 0 || index > 6) continue;
@@ -245,7 +283,6 @@ public class NutritionFragment extends Fragment implements MealLogAdapter.Listen
         summary.append("\nWater: ").append(weekWaterTotal / 7).append(" ml/day average (7 days)");
         binding.tvWeekSummary.setText(summary.toString());
 
-        // One line per day: date, a bar (12 characters wide), and the calories
         double reference = (targets != null && targets.targetCalories > 0)
                 ? targets.targetCalories : 2000;
         SimpleDateFormat dayFormat = new SimpleDateFormat("EEE dd", Locale.getDefault());
@@ -266,7 +303,6 @@ public class NutritionFragment extends Fragment implements MealLogAdapter.Listen
         ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(
                 0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 
-            // Section headers cannot be swiped
             @Override
             public int getSwipeDirs(@NonNull RecyclerView recyclerView,
                                     @NonNull RecyclerView.ViewHolder viewHolder) {

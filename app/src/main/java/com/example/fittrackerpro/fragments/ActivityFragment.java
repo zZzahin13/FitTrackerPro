@@ -1,5 +1,6 @@
 package com.example.fittrackerpro.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,10 +14,12 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.fittrackerpro.activities.TrackingActivity;
 import com.example.fittrackerpro.adapters.ActivityLogAdapter;
 import com.example.fittrackerpro.database.entity.ActivityLog;
 import com.example.fittrackerpro.databinding.FragmentActivityBinding;
 import com.example.fittrackerpro.utils.ActivityEntryDialog;
+import com.example.fittrackerpro.utils.ActivitySessionStore;
 import com.example.fittrackerpro.utils.DateUtil;
 import com.example.fittrackerpro.viewmodel.ActivityViewModel;
 import com.google.android.material.snackbar.Snackbar;
@@ -61,6 +64,17 @@ public class ActivityFragment extends Fragment {
             renderToday(logs);
         });
 
+        ActivitySessionStore.observe(requireContext()).observe(getViewLifecycleOwner(), state -> {
+            if (state != null && state.isActive()) {
+                binding.btnStartSession.setText("Session active (" + state.type + ")");
+            } else {
+                binding.btnStartSession.setText("Start timed session");
+            }
+        });
+
+        binding.btnStartSession.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), TrackingActivity.class)));
+
         binding.btnLogManual.setOnClickListener(v ->
                 ActivityEntryDialog.showManual(requireContext(), weightKg, heightCm,
                         (type, dayStart, minutes, km, steps) ->
@@ -91,7 +105,7 @@ public class ActivityFragment extends Fragment {
         binding.progressActive.setMax(DAILY_GOAL_MINUTES);
         binding.progressActive.setProgressCompat(Math.min(minutes, DAILY_GOAL_MINUTES), true);
         binding.tvTotals.setText(String.format(Locale.getDefault(),
-                "%.1f km · %d steps · about %d kcal (estimates)", km, steps, Math.round(kcal)));
+                "%.1f km • %d steps • about %d kcal (estimates)", km, steps, Math.round(kcal)));
     }
 
     private void setupSwipeToDelete() {
