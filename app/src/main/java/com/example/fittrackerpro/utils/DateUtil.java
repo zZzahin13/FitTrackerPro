@@ -6,6 +6,37 @@ import java.util.Date;
 import java.util.Locale;
 
 public class DateUtil {
+    public static long dayStartOf(long millis) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(millis);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        return c.getTimeInMillis();
+    }
+
+    public static long addDays(long millis, int days) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(millis);
+        c.add(Calendar.DAY_OF_YEAR, days);
+        return c.getTimeInMillis();
+    }
+
+    // The time saved on a log: "now" for today, noon for other days
+    public static long logTimeFor(long dayStart) {
+        if (dayStart >= startOfToday()) {
+            return System.currentTimeMillis();
+        }
+        return dayStart + 12L * 60 * 60 * 1000;
+    }
+
+    public static String formatDayLabel(long dayStart) {
+        long today = startOfToday();
+        if (dayStart == today) return "Today";
+        if (dayStart == addDays(today, -1)) return "Yesterday";
+        return new SimpleDateFormat("EEE, d MMM", Locale.getDefault()).format(new Date(dayStart));
+    }
     public static String formatDateTime(long millis) {
         return new SimpleDateFormat("EEE, d MMM yyyy · h:mm a", Locale.getDefault())
                 .format(new Date(millis));

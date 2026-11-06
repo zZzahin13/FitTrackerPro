@@ -2,12 +2,18 @@ plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
 }
-
+// Read the WorkoutX key from local.properties (that file is ignored by Git)
+def localProps = new Properties()
+def localPropsFile = rootProject.file("local.properties")
+if (localPropsFile.exists()) {
+    localPropsFile.withInputStream { stream -> localProps.load(stream) }
+}
 android {
     namespace 'com.example.fittrackerpro'
     compileSdk 34
 
     defaultConfig {
+        buildConfigField "String", "WORKOUTX_API_KEY", "\"${localProps.getProperty('workoutx.api.key', '')}\""
         applicationId "com.example.fittrackerpro"
         minSdk 26
         targetSdk 34
@@ -29,10 +35,14 @@ android {
     }
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 }
 
 dependencies {
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.14.9'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'

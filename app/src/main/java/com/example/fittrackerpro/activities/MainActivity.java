@@ -5,7 +5,7 @@ import android.os.Bundle;
 import com.example.fittrackerpro.fragments.WorkoutFragment;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-
+import com.example.fittrackerpro.fragments.NutritionFragment;
 import com.example.fittrackerpro.R;
 import com.example.fittrackerpro.databinding.ActivityMainBinding;
 import com.example.fittrackerpro.fragments.PlaceholderFragment;
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.nav_workout) {
             return new WorkoutFragment();
         } else if (id == R.id.nav_nutrition) {
-            return PlaceholderFragment.newInstance("Nutrition", "Food logging arrives on Day 5");
+            return new NutritionFragment();
         } else if (id == R.id.nav_activity) {
             return PlaceholderFragment.newInstance("Activity", "Tracking arrives on Day 6");
         } else if (id == R.id.nav_profile) {

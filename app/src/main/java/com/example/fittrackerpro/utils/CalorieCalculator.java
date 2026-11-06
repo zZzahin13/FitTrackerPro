@@ -8,7 +8,12 @@ public class CalorieCalculator {
     public static double workoutCalories(double weightKg, int minutes) {
         return 5.0 * weightKg * (minutes / 60.0);
     }
-
+    // ESTIMATE: about 35 ml of water per kg of body weight, rounded to 250 ml.
+// Needs vary with climate, activity and health; this is not medical advice.
+    public static int waterGoalMl(double weightKg) {
+        int goal = (int) (Math.round(weightKg * 35 / 250.0) * 250);
+        return Math.max(1500, Math.min(4000, goal));
+    }
     public static class Targets {
         public double bmr;
         public double tdee;

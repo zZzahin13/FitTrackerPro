@@ -14,45 +14,27 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FitTrackerPro"
         tools:targetApi="31">
-        <activity
-            android:name=".WorkoutHistoryActivity"
-            android:exported="false" />
-        <activity
-            android:name=".WorkoutDayActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ExerciseDetailActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ExerciseLibraryActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.AssessmentActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.AssessmentResultActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.ForgotPasswordActivity"
-            android:exported="false" />
+
         <activity
             android:name=".activities.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activities.LoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.RegisterActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.MainActivity"
-            android:exported="false" />
+
+        <activity android:name=".activities.LoginActivity" android:exported="false" />
+        <activity android:name=".activities.RegisterActivity" android:exported="false" />
+        <activity android:name=".activities.ForgotPasswordActivity" android:exported="false" />
+        <activity android:name=".activities.AssessmentActivity" android:exported="false" />
+        <activity android:name=".activities.AssessmentResultActivity" android:exported="false" />
+        <activity android:name=".activities.MainActivity" android:exported="false" />
+        <activity android:name=".activities.ExerciseLibraryActivity" android:exported="false" />
+        <activity android:name=".activities.ExerciseDetailActivity" android:exported="false" />
+        <activity android:name=".activities.WorkoutDayActivity" android:exported="false" />
+        <activity android:name=".activities.WorkoutHistoryActivity" android:exported="false" />
+        <activity android:name=".activities.AddFoodActivity" android:exported="false" />
     </application>
 
 </manifest>
