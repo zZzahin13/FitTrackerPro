@@ -9,16 +9,19 @@ import androidx.lifecycle.LiveData;
 import com.example.fittrackerpro.database.FitTrackerDatabase;
 import com.example.fittrackerpro.database.dao.ActivityLogDao;
 import com.example.fittrackerpro.database.entity.ActivityLog;
+import com.example.fittrackerpro.utils.SyncManager;
 
 import java.util.List;
 
 public class ActivityRepository {
 
+    private final Context appContext;
     private final ActivityLogDao dao;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public ActivityRepository(Context context) {
-        dao = FitTrackerDatabase.getInstance(context).activityLogDao();
+        appContext = context.getApplicationContext();
+        dao = FitTrackerDatabase.getInstance(appContext).activityLogDao();
     }
 
     public LiveData<List<ActivityLog>> observeRange(String userId, long rangeStart, long rangeEnd) {
@@ -28,6 +31,7 @@ public class ActivityRepository {
     public void insert(ActivityLog log, Runnable onDone) {
         FitTrackerDatabase.dbExecutor.execute(() -> {
             dao.insert(log);
+            SyncManager.triggerSyncNow(appContext);
             if (onDone != null) {
                 mainHandler.post(onDone);
             }

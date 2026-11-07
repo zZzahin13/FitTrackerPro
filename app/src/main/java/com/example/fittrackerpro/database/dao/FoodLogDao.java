@@ -15,7 +15,7 @@ import java.util.List;
 @Dao
 public interface FoodLogDao {
 
-    // REPLACE lets "Undo" put a deleted line back with its old id
+    // REPLACE lets "Undo" or cloud restore put a line back with its id
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(FoodLog log);
 
@@ -34,4 +34,10 @@ public interface FoodLogDao {
             + "WHERE l.userId = :userId AND l.date >= :rangeStart AND l.date < :rangeEnd "
             + "ORDER BY l.date")
     LiveData<List<FoodLogItem>> observeRange(String userId, long rangeStart, long rangeEnd);
+
+    @Query("SELECT * FROM food_logs WHERE userId = :userId AND isSynced = 0")
+    List<FoodLog> getUnsynced(String userId);
+
+    @Query("UPDATE food_logs SET isSynced = 1 WHERE logId = :logId")
+    void markSynced(String logId);
 }

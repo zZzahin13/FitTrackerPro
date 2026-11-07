@@ -11,21 +11,24 @@ import com.example.fittrackerpro.database.dao.UserProfileDao;
 import com.example.fittrackerpro.database.dao.WeightHistoryDao;
 import com.example.fittrackerpro.database.entity.UserProfile;
 import com.example.fittrackerpro.database.entity.WeightHistory;
+import com.example.fittrackerpro.utils.SyncManager;
 
 import java.util.List;
 
 /**
  * Day 7 Repository for WeightHistory entries.
- * Logging a new weight also updates UserProfile.currentWeightKg so BMI & calorie targets stay fresh.
+ * Logging a new weight also updates UserProfile.currentWeightKg and triggers background Cloud Sync.
  */
 public class WeightRepository {
 
+    private final Context appContext;
     private final WeightHistoryDao weightDao;
     private final UserProfileDao profileDao;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public WeightRepository(Context context) {
-        FitTrackerDatabase db = FitTrackerDatabase.getInstance(context);
+        appContext = context.getApplicationContext();
+        FitTrackerDatabase db = FitTrackerDatabase.getInstance(appContext);
         weightDao = db.weightHistoryDao();
         profileDao = db.userProfileDao();
     }
@@ -57,6 +60,8 @@ public class WeightRepository {
                 p.updatedAt = now;
                 profileDao.upsert(p);
             }
+
+            SyncManager.triggerSyncNow(appContext);
 
             if (onDone != null) {
                 mainHandler.post(onDone);

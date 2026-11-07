@@ -11,17 +11,20 @@ import com.example.fittrackerpro.database.dao.UserProfileDao;
 import com.example.fittrackerpro.database.dao.WeightHistoryDao;
 import com.example.fittrackerpro.database.entity.UserProfile;
 import com.example.fittrackerpro.database.entity.WeightHistory;
+import com.example.fittrackerpro.utils.SyncManager;
 
 import java.util.function.Consumer;
 
 public class UserRepository {
 
+    private final Context appContext;
     private final UserProfileDao dao;
     private final WeightHistoryDao weightDao;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public UserRepository(Context context) {
-        FitTrackerDatabase db = FitTrackerDatabase.getInstance(context);
+        appContext = context.getApplicationContext();
+        FitTrackerDatabase db = FitTrackerDatabase.getInstance(appContext);
         dao = db.userProfileDao();
         weightDao = db.weightHistoryDao();
     }
@@ -41,7 +44,7 @@ public class UserRepository {
     public void saveProfile(UserProfile profile, Runnable onSaved) {
         long now = System.currentTimeMillis();
         profile.updatedAt = now;
-        profile.isSynced = false;   // the Day 8 sync will upload it
+        profile.isSynced = false;
         FitTrackerDatabase.dbExecutor.execute(() -> {
             dao.upsert(profile);
 
@@ -55,6 +58,9 @@ public class UserRepository {
                 w.updatedAt = now;
                 weightDao.insert(w);
             }
+
+            // Auto-sync profile and initial weight to Firebase Firestore & Realtime DB
+            SyncManager.triggerSyncNow(appContext);
 
             if (onSaved != null) {
                 mainHandler.post(onSaved);

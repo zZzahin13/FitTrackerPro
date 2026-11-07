@@ -9,11 +9,15 @@ import androidx.work.WorkerParameters;
 
 import com.example.fittrackerpro.database.FitTrackerDatabase;
 import com.example.fittrackerpro.database.dao.ActivityLogDao;
+import com.example.fittrackerpro.database.dao.FoodLogDao;
 import com.example.fittrackerpro.database.dao.UserProfileDao;
+import com.example.fittrackerpro.database.dao.WaterDao;
 import com.example.fittrackerpro.database.dao.WeightHistoryDao;
 import com.example.fittrackerpro.database.dao.WorkoutSessionDao;
 import com.example.fittrackerpro.database.entity.ActivityLog;
+import com.example.fittrackerpro.database.entity.FoodLog;
 import com.example.fittrackerpro.database.entity.UserProfile;
+import com.example.fittrackerpro.database.entity.WaterLog;
 import com.example.fittrackerpro.database.entity.WeightHistory;
 import com.example.fittrackerpro.database.entity.WorkoutSession;
 import com.example.fittrackerpro.utils.SyncManager;
@@ -21,6 +25,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -34,8 +39,9 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * Day 8B: WorkManager background worker that uploads unsynced Room entities
- * (UserProfile, ActivityLog, WorkoutSession, WeightHistory) to Firebase Firestore
- * in a single atomic WriteBatch under users/{userId}/... and marks them isSynced = true in Room.
+ * (UserProfile, ActivityLog, WorkoutSession, WeightHistory, FoodLog, WaterLog)
+ * to Firebase Firestore in a single atomic WriteBatch under users/{userId}/...
+ * and mirrors live user status to Firebase Realtime Database.
  */
 public class SyncWorker extends Worker {
 
@@ -62,6 +68,8 @@ public class SyncWorker extends Worker {
         ActivityLogDao activityDao = db.activityLogDao();
         WorkoutSessionDao sessionDao = db.workoutSessionDao();
         WeightHistoryDao weightDao = db.weightHistoryDao();
+        FoodLogDao foodLogDao = db.foodLogDao();
+        WaterDao waterDao = db.waterDao();
 
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         DocumentReference userDoc = firestore.collection("users").document(uid);
@@ -146,12 +154,40 @@ public class SyncWorker extends Worker {
                 syncedItems++;
             }
 
+            // 5. Stage unsynced FoodLog rows
+            List<FoodLog> unsyncedFoods = foodLogDao.getUnsynced(uid);
+            for (FoodLog f : unsyncedFoods) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("logId", f.logId);
+                map.put("userId", f.userId);
+                map.put("mealId", f.mealId);
+                map.put("quantity", f.quantity);
+                map.put("date", f.date);
+                map.put("mealType", f.mealType);
+                map.put("totalCalories", f.totalCalories);
+                map.put("updatedAt", f.updatedAt);
+
+                batch.set(userDoc.collection("food_logs").document(f.logId), map);
+                syncedItems++;
+            }
+
+            // 6. Stage unsynced WaterLog rows
+            List<WaterLog> unsyncedWaters = waterDao.getUnsynced(uid);
+            for (WaterLog wl : unsyncedWaters) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("waterId", wl.waterId);
+                map.put("userId", wl.userId);
+                map.put("amountMl", wl.amountMl);
+                map.put("date", wl.date);
+                map.put("updatedAt", wl.updatedAt);
+
+                batch.set(userDoc.collection("water_logs").document(wl.waterId), map);
+                syncedItems++;
+            }
+
             if (syncedItems > 0) {
                 Task<Void> commitTask = batch.commit();
                 try {
-                    // Wait up to 6 seconds for live server acknowledgement; if offline or Firestore
-                    // is still syncing in the background, Firestore's offline cache retains the write
-                    // and delivers it automatically when connected.
                     Tasks.await(commitTask, 6, TimeUnit.SECONDS);
                 } catch (TimeoutException ignored) {
                     // Firestore has queued the batch locally in its offline persistence cache
@@ -169,6 +205,29 @@ public class SyncWorker extends Worker {
                 for (WeightHistory w : unsyncedWeights) {
                     weightDao.markSynced(w.recordId);
                 }
+                for (FoodLog f : unsyncedFoods) {
+                    foodLogDao.markSynced(f.logId);
+                }
+                for (WaterLog wl : unsyncedWaters) {
+                    waterDao.markSynced(wl.waterId);
+                }
+            }
+
+            // 7. Mirror live user status & sync heartbeat to Firebase Realtime Database
+            try {
+                Map<String, Object> rtdbStatus = new HashMap<>();
+                rtdbStatus.put("userId", uid);
+                rtdbStatus.put("name", (profile != null && profile.name != null) ? profile.name : "Athlete");
+                rtdbStatus.put("fitnessGoal", (profile != null && profile.fitnessGoal != null) ? profile.fitnessGoal : "General Fitness");
+                rtdbStatus.put("currentWeightKg", profile != null ? profile.currentWeightKg : 0.0);
+                rtdbStatus.put("lastSyncedAt", System.currentTimeMillis());
+                rtdbStatus.put("lastBatchSyncedCount", syncedItems);
+
+                FirebaseDatabase.getInstance()
+                        .getReference("user_status")
+                        .child(uid)
+                        .setValue(rtdbStatus);
+            } catch (Exception ignored) {
             }
 
             SyncManager.recordSyncSuccess(getApplicationContext(), syncedItems);

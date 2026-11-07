@@ -7,7 +7,13 @@ import android.os.Looper;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Single source of truth for the timed activity session (Day 6, Part 2).
@@ -120,6 +126,7 @@ public class ActivitySessionStore {
         prefs(context).edit().clear().apply();
         current = IDLE_STATE;
         publish();
+        mirrorToRealtimeDatabase(current);
         return current;
     }
 
@@ -145,7 +152,36 @@ public class ActivitySessionStore {
                 .apply();
         current = s;
         publish();
+        mirrorToRealtimeDatabase(s);
         return s;
+    }
+
+    /**
+     * Mirrors live activity session status (IDLE / RUNNING / PAUSED) to Firebase Realtime Database
+     * under live_sessions/{uid} for low-latency real-time session tracking.
+     */
+    private static void mirrorToRealtimeDatabase(State s) {
+        try {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null) {
+                return;
+            }
+            String statusLabel = (s.status == RUNNING) ? "RUNNING"
+                    : (s.status == PAUSED) ? "PAUSED" : "IDLE";
+            Map<String, Object> rtdbMap = new HashMap<>();
+            rtdbMap.put("status", statusLabel);
+            rtdbMap.put("activityType", s.type != null ? s.type : "None");
+            rtdbMap.put("startedAt", s.startedAt);
+            rtdbMap.put("accumulatedSeconds", s.accumulatedMs / 1000L);
+            rtdbMap.put("updatedAt", System.currentTimeMillis());
+
+            FirebaseDatabase.getInstance()
+                    .getReference("live_sessions")
+                    .child(user.getUid())
+                    .setValue(rtdbMap);
+        } catch (Exception ignored) {
+            // Non-blocking: local SharedPreferences remains the primary offline source of truth
+        }
     }
 
     private static void publish() {

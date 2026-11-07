@@ -16,18 +16,21 @@ import com.example.fittrackerpro.database.entity.FoodLogItem;
 import com.example.fittrackerpro.database.entity.Meal;
 import com.example.fittrackerpro.database.entity.WaterLog;
 import com.example.fittrackerpro.utils.DateUtil;
+import com.example.fittrackerpro.utils.SyncManager;
 
 import java.util.List;
 
 public class NutritionRepository {
 
+    private final Context appContext;
     private final MealDao mealDao;
     private final FoodLogDao logDao;
     private final WaterDao waterDao;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public NutritionRepository(Context context) {
-        FitTrackerDatabase db = FitTrackerDatabase.getInstance(context);
+        appContext = context.getApplicationContext();
+        FitTrackerDatabase db = FitTrackerDatabase.getInstance(appContext);
         mealDao = db.mealDao();
         logDao = db.foodLogDao();
         waterDao = db.waterDao();
@@ -68,13 +71,18 @@ public class NutritionRepository {
         log.totalCalories = quantity * food.calories;   // saved, so old days never change
         log.isSynced = false;
         log.updatedAt = System.currentTimeMillis();
-        FitTrackerDatabase.dbExecutor.execute(() -> logDao.insert(log));
+        FitTrackerDatabase.dbExecutor.execute(() -> {
+            logDao.insert(log);
+            SyncManager.triggerSyncNow(appContext);
+        });
     }
 
     public void updateQuantity(FoodLogItem item, double quantity) {
         double total = quantity * item.kcalPerServing;
-        FitTrackerDatabase.dbExecutor.execute(() ->
-                logDao.updateQuantity(item.log.logId, quantity, total, System.currentTimeMillis()));
+        FitTrackerDatabase.dbExecutor.execute(() -> {
+            logDao.updateQuantity(item.log.logId, quantity, total, System.currentTimeMillis());
+            SyncManager.triggerSyncNow(appContext);
+        });
     }
 
     public void deleteLog(FoodLog log) {
@@ -98,7 +106,10 @@ public class NutritionRepository {
         w.date = DateUtil.logTimeFor(dayStart);
         w.isSynced = false;
         w.updatedAt = System.currentTimeMillis();
-        FitTrackerDatabase.dbExecutor.execute(() -> waterDao.insert(w));
+        FitTrackerDatabase.dbExecutor.execute(() -> {
+            waterDao.insert(w);
+            SyncManager.triggerSyncNow(appContext);
+        });
     }
 
     public void undoLastWater(String userId, long dayStart) {

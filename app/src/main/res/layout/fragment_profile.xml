@@ -98,7 +98,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Cloud Backup (Firestore)"
+                        android:text="Cloud Sync (Firestore &amp; Realtime DB)"
                         android:textColor="@color/accent_emerald"
                         android:textSize="15sp"
                         android:textStyle="bold" />
